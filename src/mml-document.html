@@ -1,12 +1,44 @@
 <html>
   <body>
-    <!-- Scene -->
+    <!-- Scene Lighting -->
+    <!-- Main overhead light -->
     <m-light
         type="point"
-        intensity="450"
-        x="10"
-        y="10"
-        z="10"
+        intensity="800"
+        x="0"
+        y="15"
+        z="0"
+        distance="50"
+    ></m-light>
+    
+    <!-- Front lighting -->
+    <m-light
+        type="point"
+        intensity="600"
+        x="0"
+        y="8"
+        z="20"
+        distance="40"
+    ></m-light>
+    
+    <!-- Back lighting -->
+    <m-light
+        type="point"
+        intensity="400"
+        x="0"
+        y="8"
+        z="-20"
+        distance="40"
+    ></m-light>
+    
+    <!-- Side lighting -->
+    <m-light
+        type="point"
+        intensity="500"
+        x="20"
+        y="8"
+        z="0"
+        distance="40"
     ></m-light>
 
     <!-- Labels -->
@@ -65,8 +97,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#ff6b6b"
+          color="#3671C6"
       ></m-cube>
+      <m-label 
+          id="label1" 
+          x="0" 
+          y="0.5" 
+          z="0" 
+          content="Driver 4" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
       
       <!-- Cube 2 -->
       <m-cube 
@@ -77,8 +120,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#4ecdc4"
+          color="#F91536"
       ></m-cube>
+      <m-label 
+          id="label2" 
+          x="0.5" 
+          y="0.5" 
+          z="0" 
+          content="Driver 81" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
       
       <!-- Cube 3 -->
       <m-cube 
@@ -89,8 +143,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#45b7d1"
+          color="#FF8700"
       ></m-cube>
+      <m-label 
+          id="label3" 
+          x="1" 
+          y="0.5" 
+          z="0" 
+          content="Driver 27" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 4 -->
       <m-cube 
@@ -101,8 +166,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#96ceb4"
+          color="#6CD3BF"
       ></m-cube>
+      <m-label 
+          id="label4" 
+          x="1.5" 
+          y="0.5" 
+          z="0" 
+          content="Driver 44" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 5 -->
       <m-cube 
@@ -113,8 +189,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#ffeaa7"
+          color="#358C75"
       ></m-cube>
+      <m-label 
+          id="label5" 
+          x="2" 
+          y="0.5" 
+          z="0" 
+          content="Driver 1" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 6 -->
       <m-cube 
@@ -125,8 +212,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#dda0dd"
+          color="#2293D1"
       ></m-cube>
+      <m-label 
+          id="label6" 
+          x="2.5" 
+          y="0.5" 
+          z="0" 
+          content="Driver 10" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 7 -->
       <m-cube 
@@ -137,8 +235,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#98d8c8"
+          color="#37BEDD"
       ></m-cube>
+      <m-label 
+          id="label7" 
+          x="3" 
+          y="0.5" 
+          z="0" 
+          content="Driver 18" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 8 -->
       <m-cube 
@@ -149,8 +258,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#f7dc6f"
+          color="#5E8FAA"
       ></m-cube>
+      <m-label 
+          id="label8" 
+          x="3.5" 
+          y="0.5" 
+          z="0" 
+          content="Driver 23" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 9 -->
       <m-cube 
@@ -161,8 +281,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#bb8fce"
+          color="#52E252"
       ></m-cube>
+      <m-label 
+          id="label9" 
+          x="4" 
+          y="0.5" 
+          z="0" 
+          content="Driver 14" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 10 -->
       <m-cube 
@@ -173,8 +304,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#85c1e9"
+          color="#B6BABD"
       ></m-cube>
+      <m-label 
+          id="label10" 
+          x="4.5" 
+          y="0.5" 
+          z="0" 
+          content="Driver 63" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 11 -->
       <m-cube 
@@ -185,8 +327,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#f8c471"
+          color="#3671C6"
       ></m-cube>
+      <m-label 
+          id="label11" 
+          x="5" 
+          y="0.5" 
+          z="0" 
+          content="Driver 87" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 12 -->
       <m-cube 
@@ -197,8 +350,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#a9dfbf"
+          color="#F91536"
       ></m-cube>
+      <m-label 
+          id="label12" 
+          x="5.5" 
+          y="0.5" 
+          z="0" 
+          content="Driver 55" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 13 -->
       <m-cube 
@@ -209,8 +373,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#f1948a"
+          color="#FF8700"
       ></m-cube>
+      <m-label 
+          id="label13" 
+          x="6" 
+          y="0.5" 
+          z="0" 
+          content="Driver 31" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 14 -->
       <m-cube 
@@ -221,8 +396,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#85c1e9"
+          color="#6CD3BF"
       ></m-cube>
+      <m-label 
+          id="label14" 
+          x="6.5" 
+          y="0.5" 
+          z="0" 
+          content="Driver 16" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 15 -->
       <m-cube 
@@ -233,8 +419,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#f7dc6f"
+          color="#358C75"
       ></m-cube>
+      <m-label 
+          id="label15" 
+          x="7" 
+          y="0.5" 
+          z="0" 
+          content="Driver 22" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 16 -->
       <m-cube 
@@ -245,8 +442,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#d7bde2"
+          color="#2293D1"
       ></m-cube>
+      <m-label 
+          id="label16" 
+          x="7.5" 
+          y="0.5" 
+          z="0" 
+          content="Driver 12" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 17 -->
       <m-cube 
@@ -257,8 +465,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#a9dfbf"
+          color="#37BEDD"
       ></m-cube>
+      <m-label 
+          id="label17" 
+          x="8" 
+          y="0.5" 
+          z="0" 
+          content="Driver 6" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 18 -->
       <m-cube 
@@ -269,8 +488,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#f8c471"
+          color="#5E8FAA"
       ></m-cube>
+      <m-label 
+          id="label18" 
+          x="8.5" 
+          y="0.5" 
+          z="0" 
+          content="Driver 5" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 19 -->
       <m-cube 
@@ -281,8 +511,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#85c1e9"
+          color="#52E252"
       ></m-cube>
+      <m-label 
+          id="label19" 
+          x="9" 
+          y="0.5" 
+          z="0" 
+          content="Driver 30" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
 
       <!-- Cube 20 -->
       <m-cube 
@@ -293,8 +534,19 @@
           width="0.3" 
           height="0.3" 
           depth="0.3" 
-          color="#f1948a"
+          color="#B6BABD"
       ></m-cube>
+      <m-label 
+          id="label20" 
+          x="9.5" 
+          y="0.5" 
+          z="0" 
+          content="Driver 43" 
+          font-size="12" 
+          font-color="black"
+          width="1.5" 
+          height="0.3"
+      ></m-label>
     </m-group>
 
     <script>
@@ -311,16 +563,21 @@
       // Moving cubes elements
       const movingCubesGroup = document.getElementById("moving-cubes-group");
       const cubes = [];
+      const labels = [];
       
-      // Create array of all cube elements
+      // Create array of all cube elements and labels
       for (let i = 1; i <= 20; i++) {
         const cube = document.getElementById(`cube${i}`);
+        const label = document.getElementById(`label${i}`);
         if (cube) {
           cubes.push(cube);
         }
+        if (label) {
+          labels.push(label);
+        }
       }
       
-      console.log(`Found ${cubes.length} cube elements`);
+      console.log(`Found ${cubes.length} cube elements and ${labels.length} labels`);
 
       // Prepare document state
       let diceResult = 1;
@@ -339,6 +596,7 @@
       // Coordinate data will be loaded asynchronously
       let cubeCoordinates = [];
       let coordinateConfig = {};
+      let driverInfo = [];
       let currentTimeIndex = 0;
       let coordinatesLoaded = false;
 
@@ -349,15 +607,19 @@
           const scriptText = await response.text();
           
           // Execute the script in a safe way to extract the data
-          const scriptFunction = new Function(scriptText + '; return { cubeCoordinates, coordinateConfig, getCoordinatesAtTimeStep, getCurrentTimeStep };');
+          const scriptFunction = new Function(scriptText + '; return { cubeCoordinates, coordinateConfig, driverInfo, getCoordinatesAtTimeStep, getCurrentTimeStep };');
           const data = scriptFunction();
           
           cubeCoordinates = data.cubeCoordinates;
           coordinateConfig = data.coordinateConfig;
+          driverInfo = data.driverInfo || [];
           window.getCoordinatesAtTimeStep = data.getCoordinatesAtTimeStep;
           window.getCurrentTimeStep = data.getCurrentTimeStep;
           coordinatesLoaded = true;
-          
+
+          // Update labels with driver names
+          updateDriverLabels();
+
           // Start the cube movement system
           setInterval(updateCubePositions, coordinateConfig.updateInterval);
         } catch (error) {
@@ -365,26 +627,46 @@
         }
       }
 
+      // Function to update driver labels
+      function updateDriverLabels() {
+        for (let i = 0; i < labels.length && i < driverInfo.length; i++) {
+          const label = labels[i];
+          const driver = driverInfo[i];
+          if (label && driver) {
+            label.setAttribute("content", driver.driver_name);
+          }
+        }
+      }
+
       // Function to update cube positions based on coordinates
       function updateCubePositions() {
         if (!coordinatesLoaded) return;
-        
+
         const currentTime = document.timeline.currentTime;
         const timeStep = getCurrentTimeStep(currentTime);
-        
+
         if (timeStep !== currentTimeIndex) {
           currentTimeIndex = timeStep;
-          
+
           // Get coordinates for current time step
           const coordinates = getCoordinatesAtTimeStep(timeStep);
-          
-          // Update each cube's position
+
+          // Update each cube's position and its corresponding label
           for (let i = 0; i < cubes.length; i++) {
             const cube = cubes[i];
-            if (cube) {
+            const label = labels[i];
+            if (cube && coordinates[i]) {
+              // Update cube position
               cube.setAttribute("x", coordinates[i].x.toString());
               cube.setAttribute("y", coordinates[i].y.toString());
               cube.setAttribute("z", coordinates[i].z.toString());
+              
+              // Update label position to be above the cube
+              if (label) {
+                label.setAttribute("x", coordinates[i].x.toString());
+                label.setAttribute("y", (coordinates[i].y + 0.5).toString()); // 0.5 units above the cube
+                label.setAttribute("z", coordinates[i].z.toString());
+              }
             }
           }
         }

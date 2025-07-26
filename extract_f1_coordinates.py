@@ -17,32 +17,26 @@ fastf1.Cache.enable_cache('cache')
 def extract_driver_coordinates(driver_number, session):
     """Extract coordinates for a specific driver from the session."""
     try:
-        # Get position data directly from session
-        position_data = session.pos_data
+        # Get position data for the driver
+        driver_data = session.pos_data[driver_number]
         
-        if position_data is None:
+        if driver_data is None or driver_data.empty:
             print(f"No position data found for driver {driver_number}")
-            return []
-        
-        # Position data is a dictionary with driver numbers as keys
-        driver_key = str(driver_number)
-        if driver_key not in position_data:
-            print(f"No position data found for driver {driver_number}")
-            return []
-        
-        driver_data = position_data[driver_key]
-        
-        if driver_data.empty:
-            print(f"No position data found for driver {driver_number}")
-            return []
+            return {
+                'coordinates': [],
+                'driver_number': driver_number,
+                'driver_name': f"Driver {driver_number}",
+                'team_name': "Unknown",
+                'team_color': "#cccccc"
+            }
         
         print(f"Found {len(driver_data)} position records for driver {driver_number}")
         
-        # Sort by timestamp
-        driver_data = driver_data.sort_values('Time')
+        # Get driver info
+        driver_info = session.get_driver(driver_number)
         
-        # Downsample to 1 position per second
-        driver_data['second'] = driver_data['Time'].dt.floor('s')
+        # Downsample to 1 position per second using the Date column
+        driver_data['second'] = pd.to_datetime(driver_data['Date']).dt.floor('s')
         downsampled = driver_data.groupby('second').first().reset_index()
         
         # Extract coordinates and scale by 1/100
@@ -61,11 +55,46 @@ def extract_driver_coordinates(driver_number, session):
                     coordinates.append(coord)
         
         print(f"Extracted {len(coordinates)} non-zero coordinates for driver {driver_number}")
-        return coordinates
+        
+        return {
+            'coordinates': coordinates,
+            'driver_number': driver_number,
+            'driver_name': f"{driver_info.FirstName} {driver_info.LastName}",
+            'team_name': driver_info.TeamName,
+            'team_color': get_team_color(driver_info.TeamName)
+        }
         
     except Exception as e:
         print(f"Error extracting data for driver {driver_number}: {e}")
-        return []
+        return {
+            'coordinates': [],
+            'driver_number': driver_number,
+            'driver_name': f"Driver {driver_number}",
+            'team_name': "Unknown",
+            'team_color': "#cccccc"
+        }
+
+def get_team_color(team_name):
+    """Get the primary color for each F1 team."""
+    team_colors = {
+        'Red Bull Racing': '#3671C6',      # Red Bull Blue
+        'Ferrari': '#F91536',              # Ferrari Red
+        'McLaren': '#FF8700',              # McLaren Orange
+        'Mercedes': '#6CD3BF',             # Mercedes Teal
+        'Aston Martin': '#358C75',         # Aston Martin Green
+        'Alpine': '#2293D1',               # Alpine Blue
+        'Williams': '#37BEDD',             # Williams Blue
+        'Visa Cash App RB': '#5E8FAA',     # RB Blue
+        'Stake F1 Team Kick Sauber': '#52E252',  # Sauber Green
+        'Haas F1 Team': '#B6BABD',         # Haas Gray
+        'Force India': '#F596C8',          # Force India Pink (historical)
+        'Toro Rosso': '#469BFF',           # Toro Rosso Blue (historical)
+        'Racing Point': '#F596C8',         # Racing Point Pink (historical)
+        'Alfa Romeo': '#C92D4B',           # Alfa Romeo Red (historical)
+        'AlphaTauri': '#5E8FAA',           # AlphaTauri Blue (historical)
+    }
+    
+    return team_colors.get(team_name, '#cccccc')  # Default gray for unknown teams
 
 def main():
     """Main function to extract F1 coordinates and generate the JS file."""
@@ -100,7 +129,7 @@ def main():
         all_coordinates.append(coords)
     
     # Find the minimum length to ensure all arrays have the same number of coordinates
-    min_length = min(len(coords) for coords in all_coordinates if coords)
+    min_length = min(len(coords['coordinates']) for coords in all_coordinates if coords['coordinates'])
     
     if min_length == 0:
         print("No valid coordinate data found!")
@@ -108,7 +137,7 @@ def main():
     
     # Truncate all arrays to the minimum length
     for i in range(len(all_coordinates)):
-        all_coordinates[i] = all_coordinates[i][:min_length]
+        all_coordinates[i]['coordinates'] = all_coordinates[i]['coordinates'][:min_length]
     
     print(f"\nFinal coordinate arrays: {min_length} positions each for {len(all_drivers)} drivers")
     
@@ -117,14 +146,30 @@ def main():
 // Coordinates scaled by 1/100 and filtered to remove stationary positions
 // Time steps are 1/30th of a second apart (30x speed replay)
 
+// Driver information array - accessible globally
+const driverInfo = [
+"""
+    
+    # Add driver information for each driver
+    for i, driver_data in enumerate(all_coordinates):
+        js_content += f"  // Driver {driver_data['driver_number']} info\n"
+        js_content += f"  {{\n"
+        js_content += f"    driver_number: {driver_data['driver_number']},\n"
+        js_content += f"    driver_name: \"{driver_data['driver_name']}\",\n"
+        js_content += f"    team_name: \"{driver_data['team_name']}\",\n"
+        js_content += f"    team_color: \"{driver_data['team_color']}\"\n"
+        js_content += f"  }},\n\n"
+    
+    js_content += f"""];
+
 // Cube coordinates array - accessible globally
 const cubeCoordinates = [
 """
     
     # Add coordinates for each driver
-    for i, driver in enumerate(all_drivers):
-        js_content += f"  // Cube {i+1} coordinates (driver {driver}) - F1 telemetry data\n"
-        js_content += f"  {json.dumps(all_coordinates[i], indent=2)},\n\n"
+    for i, driver_data in enumerate(all_coordinates):
+        js_content += f"  // Cube {i+1} coordinates (driver {driver_data['driver_number']}) - F1 telemetry data\n"
+        js_content += f"  {json.dumps(driver_data['coordinates'], indent=2)},\n\n"
     
     js_content += f"""];
 
@@ -152,8 +197,8 @@ function getCurrentTimeStep(currentTime) {{
     
     print(f"\n✅ Generated assets/f1-coordinates.js with {min_length} coordinate positions")
     print(f"All {len(all_drivers)} drivers mapped to cubes:")
-    for i, driver in enumerate(all_drivers):
-        print(f"  - Cube {i+1}: Driver {driver}")
+    for i, driver_data in enumerate(all_coordinates):
+        print(f"  - Cube {i+1}: Driver {driver_data['driver_number']} ({driver_data['driver_name']}) - Team: {driver_data['team_name']} (Color: {driver_data['team_color']})")
 
 if __name__ == "__main__":
     main() 
