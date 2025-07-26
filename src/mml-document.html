@@ -53,6 +53,46 @@
       <m-attr-anim id="ry-anim" easing="easeInOutCubic" attr="ry" duration="500" start="0" end="0" loop="false"></m-attr-anim>
       <m-attr-anim id="rz-anim" easing="easeInOutCubic" attr="rz" duration="500" start="0" end="0" loop="false"></m-attr-anim>
     </m-model>
+
+    <!-- Moving Cubes Group -->
+    <m-group id="moving-cubes-group" x="-5" y="0" z="0">
+      <!-- Cube 1 -->
+      <m-cube 
+          id="cube1" 
+          x="0" 
+          y="0" 
+          z="0" 
+          width="0.5" 
+          height="0.5" 
+          depth="0.5" 
+          color="#ff6b6b"
+      ></m-cube>
+      
+      <!-- Cube 2 -->
+      <m-cube 
+          id="cube2" 
+          x="1" 
+          y="0" 
+          z="0" 
+          width="0.5" 
+          height="0.5" 
+          depth="0.5" 
+          color="#4ecdc4"
+      ></m-cube>
+      
+      <!-- Cube 3 -->
+      <m-cube 
+          id="cube3" 
+          x="2" 
+          y="0" 
+          z="0" 
+          width="0.5" 
+          height="0.5" 
+          depth="0.5" 
+          color="#45b7d1"
+      ></m-cube>
+    </m-group>
+
     <script>
       // Get elements
       const uptimeLabelElem = document.getElementById("uptime-label");
@@ -63,6 +103,12 @@
       const ryAnim = document.getElementById("ry-anim");
       const rzAnim = document.getElementById("rz-anim");
       const diceClickLabelElem = document.getElementById("click-label");
+
+      // Moving cubes elements
+      const movingCubesGroup = document.getElementById("moving-cubes-group");
+      const cube1 = document.getElementById("cube1");
+      const cube2 = document.getElementById("cube2");
+      const cube3 = document.getElementById("cube3");
 
       // Prepare document state
       let diceResult = 1;
@@ -77,6 +123,88 @@
         5: [0, 0, 90],
         6: [180, 0, 0],
       };
+
+      // Moving cubes coordinates - straight line movement
+      const cubeCoordinates = [
+        // Time: 0s, 1s, 2s, 3s, 4s, 5s, 6s, 7s, 8s, 9s, 10s
+        // Cube 1 coordinates (red)
+        [
+          {x: 0, y: 0, z: 0},    // Start position
+          {x: 1, y: 0, z: 0},    // 1 second
+          {x: 2, y: 0, z: 0},    // 2 seconds
+          {x: 3, y: 0, z: 0},    // 3 seconds
+          {x: 4, y: 0, z: 0},    // 4 seconds
+          {x: 5, y: 0, z: 0},    // 5 seconds
+          {x: 6, y: 0, z: 0},    // 6 seconds
+          {x: 7, y: 0, z: 0},    // 7 seconds
+          {x: 8, y: 0, z: 0},    // 8 seconds
+          {x: 9, y: 0, z: 0},    // 9 seconds
+          {x: 10, y: 0, z: 0},   // 10 seconds
+        ],
+        // Cube 2 coordinates (teal) - parallel movement
+        [
+          {x: 1, y: 0, z: 0},    // Start position
+          {x: 2, y: 0, z: 0},    // 1 second
+          {x: 3, y: 0, z: 0},    // 2 seconds
+          {x: 4, y: 0, z: 0},    // 3 seconds
+          {x: 5, y: 0, z: 0},    // 4 seconds
+          {x: 6, y: 0, z: 0},    // 5 seconds
+          {x: 7, y: 0, z: 0},    // 6 seconds
+          {x: 8, y: 0, z: 0},    // 7 seconds
+          {x: 9, y: 0, z: 0},    // 8 seconds
+          {x: 10, y: 0, z: 0},   // 9 seconds
+          {x: 11, y: 0, z: 0},   // 10 seconds
+        ],
+        // Cube 3 coordinates (blue) - parallel movement
+        [
+          {x: 2, y: 0, z: 0},    // Start position
+          {x: 3, y: 0, z: 0},    // 1 second
+          {x: 4, y: 0, z: 0},    // 2 seconds
+          {x: 5, y: 0, z: 0},    // 3 seconds
+          {x: 6, y: 0, z: 0},    // 4 seconds
+          {x: 7, y: 0, z: 0},    // 5 seconds
+          {x: 8, y: 0, z: 0},    // 6 seconds
+          {x: 9, y: 0, z: 0},    // 7 seconds
+          {x: 10, y: 0, z: 0},   // 8 seconds
+          {x: 11, y: 0, z: 0},   // 9 seconds
+          {x: 12, y: 0, z: 0},   // 10 seconds
+        ]
+      ];
+
+      let currentTimeIndex = 0;
+      const totalTimeSteps = cubeCoordinates[0].length;
+      const timeStepDuration = 1000; // 1 second per step
+
+      // Function to update cube positions based on coordinates
+      function updateCubePositions() {
+        const currentTime = document.timeline.currentTime;
+        const timeStep = Math.floor(currentTime / timeStepDuration) % totalTimeSteps;
+        
+        if (timeStep !== currentTimeIndex) {
+          currentTimeIndex = timeStep;
+          
+          // Update each cube's position
+          const cube1Pos = cubeCoordinates[0][timeStep];
+          const cube2Pos = cubeCoordinates[1][timeStep];
+          const cube3Pos = cubeCoordinates[2][timeStep];
+          
+          cube1.setAttribute("x", cube1Pos.x.toString());
+          cube1.setAttribute("y", cube1Pos.y.toString());
+          cube1.setAttribute("z", cube1Pos.z.toString());
+          
+          cube2.setAttribute("x", cube2Pos.x.toString());
+          cube2.setAttribute("y", cube2Pos.y.toString());
+          cube2.setAttribute("z", cube2Pos.z.toString());
+          
+          cube3.setAttribute("x", cube3Pos.x.toString());
+          cube3.setAttribute("y", cube3Pos.y.toString());
+          cube3.setAttribute("z", cube3Pos.z.toString());
+        }
+      }
+
+      // Update cube positions every tick
+      setInterval(updateCubePositions, 50); // Update 20 times per second for smooth movement
+
       function rollDice() {
         diceClickCount++;
         updateDiceClickCountLabel();
