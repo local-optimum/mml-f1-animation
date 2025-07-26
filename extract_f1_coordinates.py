@@ -14,6 +14,34 @@ import json
 # Enable cache for faster subsequent runs
 fastf1.Cache.enable_cache('cache')
 
+def get_f1_driver_abbreviation(driver_name):
+    """Convert driver name to F1-style 3-letter abbreviation."""
+    # F1 driver abbreviations mapping
+    driver_abbreviations = {
+        'Max Verstappen': 'VER',
+        'Lewis Hamilton': 'HAM',
+        'Lando Norris': 'NOR',
+        'Oscar Piastri': 'PIA',
+        'Nico Hulkenberg': 'HUL',
+        'Pierre Gasly': 'GAS',
+        'Lance Stroll': 'STR',
+        'Alexander Albon': 'ALB',
+        'Fernando Alonso': 'ALO',
+        'George Russell': 'RUS',
+        'Oliver Bearman': 'BEA',
+        'Carlos Sainz': 'SAI',
+        'Esteban Ocon': 'OCO',
+        'Charles Leclerc': 'LEC',
+        'Yuki Tsunoda': 'TSU',
+        'Kimi Antonelli': 'ANT',
+        'Isack Hadjar': 'HAD',
+        'Gabriel Bortoleto': 'BOR',
+        'Liam Lawson': 'LAW',
+        'Franco Colapinto': 'COL'
+    }
+    
+    return driver_abbreviations.get(driver_name, driver_name[:3].upper())
+
 def extract_driver_coordinates(driver_number, session):
     """Extract coordinates for a specific driver from the session."""
     try:
@@ -26,6 +54,7 @@ def extract_driver_coordinates(driver_number, session):
                 'coordinates': [],
                 'driver_number': driver_number,
                 'driver_name': f"Driver {driver_number}",
+                'driver_abbreviation': f"DRV{driver_number}",
                 'team_name': "Unknown",
                 'team_color': "#cccccc"
             }
@@ -34,6 +63,8 @@ def extract_driver_coordinates(driver_number, session):
         
         # Get driver info
         driver_info = session.get_driver(driver_number)
+        full_name = f"{driver_info.FirstName} {driver_info.LastName}"
+        driver_abbreviation = get_f1_driver_abbreviation(full_name)
         
         # Downsample to 1 position per second using the Date column
         driver_data['second'] = pd.to_datetime(driver_data['Date']).dt.floor('s')
@@ -59,7 +90,8 @@ def extract_driver_coordinates(driver_number, session):
         return {
             'coordinates': coordinates,
             'driver_number': driver_number,
-            'driver_name': f"{driver_info.FirstName} {driver_info.LastName}",
+            'driver_name': full_name,
+            'driver_abbreviation': driver_abbreviation,
             'team_name': driver_info.TeamName,
             'team_color': get_team_color(driver_info.TeamName)
         }
@@ -70,6 +102,7 @@ def extract_driver_coordinates(driver_number, session):
             'coordinates': [],
             'driver_number': driver_number,
             'driver_name': f"Driver {driver_number}",
+            'driver_abbreviation': f"DRV{driver_number}",
             'team_name': "Unknown",
             'team_color': "#cccccc"
         }
@@ -156,6 +189,7 @@ const driverInfo = [
         js_content += f"  {{\n"
         js_content += f"    driver_number: {driver_data['driver_number']},\n"
         js_content += f"    driver_name: \"{driver_data['driver_name']}\",\n"
+        js_content += f"    driver_abbreviation: \"{driver_data['driver_abbreviation']}\",\n"
         js_content += f"    team_name: \"{driver_data['team_name']}\",\n"
         js_content += f"    team_color: \"{driver_data['team_color']}\"\n"
         js_content += f"  }},\n\n"
