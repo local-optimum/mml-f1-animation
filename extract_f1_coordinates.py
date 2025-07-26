@@ -45,12 +45,12 @@ def extract_driver_coordinates(driver_number, session):
         driver_data['second'] = driver_data['Time'].dt.floor('s')
         downsampled = driver_data.groupby('second').first().reset_index()
         
-        # Extract coordinates and scale by 1/1000
+        # Extract coordinates and scale by 1/100
         coordinates = []
         for _, row in downsampled.iterrows():
             # Check if we have valid position data
             if pd.notna(row['X']) and pd.notna(row['Y']) and pd.notna(row['Z']):
-                x, y, z = float(row['X']) / 1000, float(row['Y']) / 1000, float(row['Z']) / 1000
+                x, y, z = float(row['X']) / 100, float(row['Y']) / 100, float(row['Z']) / 100
                 # Filter out (0,0,0) coordinates which indicate no movement
                 if x != 0 or y != 0 or z != 0:
                     coord = {
@@ -87,11 +87,14 @@ def main():
             print(f"Error loading 2024 session: {e2}")
             return
     
-    # Extract coordinates for drivers 4, 81, and 27
-    drivers = [4, 81, 27]
+    # Get all available drivers from the session
+    all_drivers = list(session.pos_data.keys())
+    print(f"Found {len(all_drivers)} drivers in the race: {all_drivers}")
+    
+    # Extract coordinates for all drivers
     all_coordinates = []
     
-    for driver in drivers:
+    for driver in all_drivers:
         print(f"\nExtracting data for driver {driver}...")
         coords = extract_driver_coordinates(driver, session)
         all_coordinates.append(coords)
@@ -107,24 +110,23 @@ def main():
     for i in range(len(all_coordinates)):
         all_coordinates[i] = all_coordinates[i][:min_length]
     
-    print(f"\nFinal coordinate arrays: {min_length} positions each")
+    print(f"\nFinal coordinate arrays: {min_length} positions each for {len(all_drivers)} drivers")
     
     # Generate the JavaScript file
-    js_content = f"""// F1 coordinate data for drivers 4, 81, and 27 from Silverstone race
-// Coordinates scaled by 1/1000 and filtered to remove stationary positions
-// Time steps are 1/60th of a second apart (60x speed replay)
+    js_content = f"""// F1 coordinate data for ALL drivers from Silverstone race
+// Coordinates scaled by 1/100 and filtered to remove stationary positions
+// Time steps are 1/30th of a second apart (30x speed replay)
 
 // Cube coordinates array - accessible globally
 const cubeCoordinates = [
-  // Cube 1 coordinates (driver 4) - F1 telemetry data
-  {json.dumps(all_coordinates[0], indent=2)},
-  
-  // Cube 2 coordinates (driver 81) - F1 telemetry data  
-  {json.dumps(all_coordinates[1], indent=2)},
-  
-  // Cube 3 coordinates (driver 27) - F1 telemetry data
-  {json.dumps(all_coordinates[2], indent=2)}
-];
+"""
+    
+    # Add coordinates for each driver
+    for i, driver in enumerate(all_drivers):
+        js_content += f"  // Cube {i+1} coordinates (driver {driver}) - F1 telemetry data\n"
+        js_content += f"  {json.dumps(all_coordinates[i], indent=2)},\n\n"
+    
+    js_content += f"""];
 
 // Configuration for the coordinate system - accessible globally
 const coordinateConfig = {{
@@ -149,10 +151,9 @@ function getCurrentTimeStep(currentTime) {{
         f.write(js_content)
     
     print(f"\n✅ Generated assets/f1-coordinates.js with {min_length} coordinate positions")
-    print("Drivers mapped:")
-    print("  - Cube 1 (red): Driver 4")
-    print("  - Cube 2 (teal): Driver 81") 
-    print("  - Cube 3 (blue): Driver 27")
+    print(f"All {len(all_drivers)} drivers mapped to cubes:")
+    for i, driver in enumerate(all_drivers):
+        print(f"  - Cube {i+1}: Driver {driver}")
 
 if __name__ == "__main__":
     main() 
