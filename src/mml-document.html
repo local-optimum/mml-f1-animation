@@ -41,68 +41,30 @@
         distance="40"
     ></m-light>
 
-    <!-- Labels -->
-    <m-group y="5">
-      <m-label
-          id="uptime-label"
-          y="2"
-          width="4"
-          height="0.5"
-          color="#bfdbfe"
-          font-color="#172554"
-          alignment="center"
-      ></m-label>
-      <m-label
-          id="connected-label"
-          y="1"
-          width="4"
-          height="0.5"
-          color="#bfdbfe"
-          font-color="#172554"
-          alignment="center"
-      ></m-label>
-      <m-label
-          id="click-label"
-          width="4"
-          height="0.5"
-          color="#bfdbfe"
-          font-color="#172554"
-          alignment="center"
-          content="Click the dice!"
-      ></m-label>
-    </m-group>
+    <!-- Racing Track Plane -->
+    <m-plane 
+        id="racing-track"
+        x="0" 
+        y="-0.5" 
+        z="0" 
+        width="100" 
+        height="100" 
+        rx="90" 
+        color="#004225"
+    ></m-plane>
 
-    <!-- Dice -->
-    <m-model
-        id="dice"
-        src="/assets/dice.glb"
-        onclick="rollDice()"
-        y="1"
-    >
-      <m-attr-anim id="y-up-anim" easing="easeOutSine" attr="y" duration="300" start="1" end="1" loop="false"></m-attr-anim>
-      <m-attr-anim id="y-down-anim" easing="easeOutBounce" attr="y" start-time="0" duration="500" start="1" end="1" loop="false"></m-attr-anim>
-      <m-attr-anim id="rx-anim" easing="easeInOutCubic" attr="rx" duration="500" start="0" end="0" loop="false"></m-attr-anim>
-      <m-attr-anim id="ry-anim" easing="easeInOutCubic" attr="ry" duration="500" start="0" end="0" loop="false"></m-attr-anim>
-      <m-attr-anim id="rz-anim" easing="easeInOutCubic" attr="rz" duration="500" start="0" end="0" loop="false"></m-attr-anim>
-    </m-model>
-
-        <!-- Moving Cubes Group -->
+    <!-- Moving Cubes Group -->
     <m-group id="moving-cubes-group">
-      <!-- Cubes and labels will be generated dynamically -->
+    <!-- Cubes and labels will be generated dynamically -->
     </m-group>
-
-
 
     <script>
       // Get elements
-      const uptimeLabelElem = document.getElementById("uptime-label");
-      const connectedLabelElem = document.getElementById("connected-label");
       const yUpAnim = document.getElementById("y-up-anim");
       const yDownAnim = document.getElementById("y-down-anim");
       const rxAnim = document.getElementById("rx-anim");
       const ryAnim = document.getElementById("ry-anim");
       const rzAnim = document.getElementById("rz-anim");
-      const diceClickLabelElem = document.getElementById("click-label");
 
       // Moving cubes elements
       const movingCubesGroup = document.getElementById("moving-cubes-group");
@@ -148,22 +110,22 @@
           cube.setAttribute('x', '0');
           cube.setAttribute('y', '0');
           cube.setAttribute('z', '0');
-          cube.setAttribute('width', '0.6');
-          cube.setAttribute('height', '0.6');
-          cube.setAttribute('depth', '0.6');
+          cube.setAttribute('width', '1');
+          cube.setAttribute('height', '1');
+          cube.setAttribute('depth', '1');
           cube.setAttribute('color', teamColors[i - 1]);
           
           // Create label
           const label = document.createElement('m-label');
           label.setAttribute('id', `label${i}`);
           label.setAttribute('x', '0');
-          label.setAttribute('y', '0.8');
+          label.setAttribute('y', '3');
           label.setAttribute('z', '0');
           label.setAttribute('content', `Driver ${i}`);
-          label.setAttribute('font-size', '12');
+          label.setAttribute('font-size', '108');
           label.setAttribute('font-color', 'black');
-          label.setAttribute('width', '0.8');
-          label.setAttribute('height', '0.3');
+          label.setAttribute('width', '3');
+          label.setAttribute('height', '2');
           label.setAttribute('alignment', 'center');
           
           // Add to group
@@ -182,26 +144,15 @@
       createCubesAndLabels();
 
 
-
-      // Prepare document state
-      let diceResult = 1;
-      let connectedClientCount = 0;
-      let diceClickCount = 0;
-      let rollTime = 0;
-      const rollMap = {
-        1: [0, 0, 0],
-        2: [0, 0, 270],
-        3: [270, 0, 0],
-        4: [90, 0, 0],
-        5: [0, 0, 90],
-        6: [180, 0, 0],
-      };
-
       // Coordinate data will be loaded asynchronously
       let cubeCoordinates = [];
       let coordinateConfig = {};
       let driverInfo = [];
       let currentTimeIndex = 0;
+      
+      // Animation control variables
+      let replaySpeed = 0.5; // Half speed for smoother viewing
+      let enableInterpolation = true; // Enable smooth interpolation between positions
       let coordinatesLoaded = false;
       
 
@@ -257,37 +208,88 @@
 
 
 
+      // Linear interpolation function
+      function lerp(start, end, t) {
+        return start + (end - start) * t;
+      }
+      
+      // Interpolate between two coordinate objects
+      function interpolateCoordinates(coord1, coord2, t) {
+        return {
+          x: lerp(coord1.x, coord2.x, t),
+          y: lerp(coord1.y, coord2.y, t),
+          z: lerp(coord1.z, coord2.z, t)
+        };
+      }
+      
+      // Get interpolated coordinates for the current time
+      function getInterpolatedCoordinates(currentTime) {
+        // Adjust time by replay speed
+        const adjustedTime = currentTime * replaySpeed;
+        
+        // Calculate the exact time step (including fractional part)
+        const exactTimeStep = adjustedTime / coordinateConfig.timeStepDuration;
+        
+        // Get the two surrounding integer time steps
+        const lowerTimeStep = Math.floor(exactTimeStep) % coordinateConfig.totalTimeSteps;
+        const upperTimeStep = (lowerTimeStep + 1) % coordinateConfig.totalTimeSteps;
+        
+        // Calculate interpolation factor (0.0 to 1.0)
+        const interpolationFactor = exactTimeStep - Math.floor(exactTimeStep);
+        
+        // Get coordinates for both time steps
+        const lowerCoords = getCoordinatesAtTimeStep(lowerTimeStep);
+        const upperCoords = getCoordinatesAtTimeStep(upperTimeStep);
+        
+        // Interpolate between the two sets of coordinates
+        const interpolatedCoords = [];
+        for (let i = 0; i < lowerCoords.length; i++) {
+          if (lowerCoords[i] && upperCoords[i]) {
+            interpolatedCoords.push(
+              interpolateCoordinates(lowerCoords[i], upperCoords[i], interpolationFactor)
+            );
+          } else {
+            // Fallback to lower coord if upper is missing
+            interpolatedCoords.push(lowerCoords[i]);
+          }
+        }
+        
+        return interpolatedCoords;
+      }
+      
       // Function to update cube positions based on coordinates
       function updateCubePositions() {
         if (!coordinatesLoaded) return;
 
         const currentTime = document.timeline.currentTime;
-        const timeStep = getCurrentTimeStep(currentTime);
-
-        if (timeStep !== currentTimeIndex) {
-          currentTimeIndex = timeStep;
+        
+        let coordinates;
+        if (enableInterpolation) {
+          // Use smooth interpolation
+          coordinates = getInterpolatedCoordinates(currentTime);
+        } else {
+          // Use discrete time steps (original behavior)
+          const timeStep = getCurrentTimeStep(currentTime * replaySpeed);
+          coordinates = getCoordinatesAtTimeStep(timeStep);
+        }
+        
+        // Update each cube's position
+        for (let i = 0; i < cubes.length && i < coordinates.length; i++) {
+          const cube = cubes[i];
+          const label = labels[i];
+          const coord = coordinates[i];
           
-          // Get coordinates for current time step
-          const coordinates = getCoordinatesAtTimeStep(timeStep);
-          
-          // Update each cube's position directly
-          for (let i = 0; i < cubes.length && i < coordinates.length; i++) {
-            const cube = cubes[i];
-            const label = labels[i];
-            const coord = coordinates[i];
+          if (cube && coord) {
+            // Update cube position with interpolated coordinates
+            cube.setAttribute("x", coord.x.toString());
+            cube.setAttribute("y", coord.y.toString());
+            cube.setAttribute("z", coord.z.toString());
             
-            if (cube && coord) {
-              // Update cube position directly
-              cube.setAttribute("x", coord.x.toString());
-              cube.setAttribute("y", coord.y.toString());
-              cube.setAttribute("z", coord.z.toString());
-              
-              // Update label position to be above the cube
-              if (label) {
-                label.setAttribute("x", coord.x.toString());
-                label.setAttribute("y", (coord.y + 0.8).toString()); // 0.8 units above the cube
-                label.setAttribute("z", coord.z.toString());
-              }
+            // Update label position to be above the cube
+            if (label) {
+              label.setAttribute("x", coord.x.toString());
+              label.setAttribute("y", (coord.y + 3).toString()); // 3 units above the cube
+              label.setAttribute("z", coord.z.toString());
             }
           }
         }
@@ -296,69 +298,18 @@
       // Initialize coordinate loading
       loadCoordinates();
 
-      function rollDice() {
-        diceClickCount++;
-        updateDiceClickCountLabel();
-
-        const t = document.timeline.currentTime + 50;
-        if (t < rollTime + 800) {
-          return;
+      // Start animation loop once coordinates are loaded
+      function startAnimationLoop() {
+        if (coordinatesLoaded) {
+          setInterval(updateCubePositions, coordinateConfig.updateInterval || 50);
+        } else {
+          // Check again in 100ms if coordinates aren't loaded yet
+          setTimeout(startAnimationLoop, 100);
         }
-        rollTime = t;
-        const oldRotation = rollMap[diceResult];
-        diceResult = Math.floor(Math.random() * 6) + 1;
-        const targetRotation = rollMap[diceResult];
-        yUpAnim.setAttribute("start-time", t);
-        yUpAnim.setAttribute("end", 3);
-        yDownAnim.setAttribute("start-time", t+300);
-        yDownAnim.setAttribute("start", 3);
-        yDownAnim.setAttribute("end", 1);
-        rxAnim.setAttribute("start-time", t);
-        rxAnim.setAttribute("start", oldRotation[0].toString());
-        rxAnim.setAttribute("end", targetRotation[0].toString());
-        ryAnim.setAttribute("start-time", t);
-        ryAnim.setAttribute("start", oldRotation[1].toString());
-        ryAnim.setAttribute("end", targetRotation[1].toString());
-        rzAnim.setAttribute("start-time", t);
-        rzAnim.setAttribute("start", oldRotation[2].toString());
-        rzAnim.setAttribute("end", targetRotation[2].toString());
       }
-
-      const updateUptimeLabel = () => {
-        // Get total document uptime
-        // NOTE: document.timeline.currentTime reports uptime in ms
-        const totalUptimeSeconds = Math.floor(document.timeline.currentTime / 1000);
-        const uptimeMinutes = Math.floor(totalUptimeSeconds / 60);
-        const uptimeSeconds = totalUptimeSeconds - uptimeMinutes * 60;
-        const uptimeLabelText =
-          uptimeMinutes > 0
-            ? `${uptimeMinutes}:${String(uptimeSeconds).padStart(2, "0")}`
-            : `${uptimeSeconds}s`;
-
-        uptimeLabelElem.setAttribute("content", `Uptime: ${uptimeLabelText}`);
-      };
-
-      const updateConnectedCountLabel = () => {
-        connectedLabelElem.setAttribute("content", `Connected clients: ${connectedClientCount}`);
-      };
-
-      const updateDiceClickCountLabel = () => {
-        diceClickLabelElem.setAttribute("content", `Dice clicks: ${diceClickCount}`);
-      };
-
-      // Refresh document uptime
-      updateUptimeLabel();
-      setInterval(updateUptimeLabel, 1000);
-
-      // Client connection listeners
-      window.addEventListener("connected", () => {
-        connectedClientCount++;
-        updateConnectedCountLabel();
-      });
-      window.addEventListener("disconnected", () => {
-        connectedClientCount--;
-        updateConnectedCountLabel();
-      });
+      
+      // Start the animation loop
+      startAnimationLoop();
     </script>
   </body>
 </html>
