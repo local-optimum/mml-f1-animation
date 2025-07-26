@@ -133,7 +133,7 @@
       // Load coordinate data from external file
       async function loadCoordinates() {
         try {
-          const response = await fetch('http://localhost:8080/assets/cube-coordinates.js');
+          const response = await fetch('http://localhost:8080/assets/f1-coordinates.js');
           const scriptText = await response.text();
           
           // Execute the script in a safe way to extract the data
