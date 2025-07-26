@@ -124,86 +124,65 @@
         6: [180, 0, 0],
       };
 
-      // Moving cubes coordinates - straight line movement
-      const cubeCoordinates = [
-        // Time: 0s, 1s, 2s, 3s, 4s, 5s, 6s, 7s, 8s, 9s, 10s
-        // Cube 1 coordinates (red)
-        [
-          {x: 0, y: 0, z: 0},    // Start position
-          {x: 1, y: 0, z: 0},    // 1 second
-          {x: 2, y: 0, z: 0},    // 2 seconds
-          {x: 3, y: 0, z: 0},    // 3 seconds
-          {x: 4, y: 0, z: 0},    // 4 seconds
-          {x: 5, y: 0, z: 0},    // 5 seconds
-          {x: 6, y: 0, z: 0},    // 6 seconds
-          {x: 7, y: 0, z: 0},    // 7 seconds
-          {x: 8, y: 0, z: 0},    // 8 seconds
-          {x: 9, y: 0, z: 0},    // 9 seconds
-          {x: 10, y: 0, z: 0},   // 10 seconds
-        ],
-        // Cube 2 coordinates (teal) - parallel movement
-        [
-          {x: 1, y: 0, z: 0},    // Start position
-          {x: 2, y: 0, z: 0},    // 1 second
-          {x: 3, y: 0, z: 0},    // 2 seconds
-          {x: 4, y: 0, z: 0},    // 3 seconds
-          {x: 5, y: 0, z: 0},    // 4 seconds
-          {x: 6, y: 0, z: 0},    // 5 seconds
-          {x: 7, y: 0, z: 0},    // 6 seconds
-          {x: 8, y: 0, z: 0},    // 7 seconds
-          {x: 9, y: 0, z: 0},    // 8 seconds
-          {x: 10, y: 0, z: 0},   // 9 seconds
-          {x: 11, y: 0, z: 0},   // 10 seconds
-        ],
-        // Cube 3 coordinates (blue) - parallel movement
-        [
-          {x: 2, y: 0, z: 0},    // Start position
-          {x: 3, y: 0, z: 0},    // 1 second
-          {x: 4, y: 0, z: 0},    // 2 seconds
-          {x: 5, y: 0, z: 0},    // 3 seconds
-          {x: 6, y: 0, z: 0},    // 4 seconds
-          {x: 7, y: 0, z: 0},    // 5 seconds
-          {x: 8, y: 0, z: 0},    // 6 seconds
-          {x: 9, y: 0, z: 0},    // 7 seconds
-          {x: 10, y: 0, z: 0},   // 8 seconds
-          {x: 11, y: 0, z: 0},   // 9 seconds
-          {x: 12, y: 0, z: 0},   // 10 seconds
-        ]
-      ];
-
+      // Coordinate data will be loaded asynchronously
+      let cubeCoordinates = [];
+      let coordinateConfig = {};
       let currentTimeIndex = 0;
-      const totalTimeSteps = cubeCoordinates[0].length;
-      const timeStepDuration = 1000; // 1 second per step
+      let coordinatesLoaded = false;
+
+      // Load coordinate data from external file
+      async function loadCoordinates() {
+        try {
+          const response = await fetch('http://localhost:8080/assets/cube-coordinates.js');
+          const scriptText = await response.text();
+          
+          // Execute the script in a safe way to extract the data
+          const scriptFunction = new Function(scriptText + '; return { cubeCoordinates, coordinateConfig, getCoordinatesAtTimeStep, getCurrentTimeStep };');
+          const data = scriptFunction();
+          
+          cubeCoordinates = data.cubeCoordinates;
+          coordinateConfig = data.coordinateConfig;
+          window.getCoordinatesAtTimeStep = data.getCoordinatesAtTimeStep;
+          window.getCurrentTimeStep = data.getCurrentTimeStep;
+          coordinatesLoaded = true;
+          
+          // Start the cube movement system
+          setInterval(updateCubePositions, coordinateConfig.updateInterval);
+        } catch (error) {
+          console.error('Failed to load coordinates:', error);
+        }
+      }
 
       // Function to update cube positions based on coordinates
       function updateCubePositions() {
+        if (!coordinatesLoaded) return;
+        
         const currentTime = document.timeline.currentTime;
-        const timeStep = Math.floor(currentTime / timeStepDuration) % totalTimeSteps;
+        const timeStep = getCurrentTimeStep(currentTime);
         
         if (timeStep !== currentTimeIndex) {
           currentTimeIndex = timeStep;
           
+          // Get coordinates for current time step
+          const coordinates = getCoordinatesAtTimeStep(timeStep);
+          
           // Update each cube's position
-          const cube1Pos = cubeCoordinates[0][timeStep];
-          const cube2Pos = cubeCoordinates[1][timeStep];
-          const cube3Pos = cubeCoordinates[2][timeStep];
+          cube1.setAttribute("x", coordinates[0].x.toString());
+          cube1.setAttribute("y", coordinates[0].y.toString());
+          cube1.setAttribute("z", coordinates[0].z.toString());
           
-          cube1.setAttribute("x", cube1Pos.x.toString());
-          cube1.setAttribute("y", cube1Pos.y.toString());
-          cube1.setAttribute("z", cube1Pos.z.toString());
+          cube2.setAttribute("x", coordinates[1].x.toString());
+          cube2.setAttribute("y", coordinates[1].y.toString());
+          cube2.setAttribute("z", coordinates[1].z.toString());
           
-          cube2.setAttribute("x", cube2Pos.x.toString());
-          cube2.setAttribute("y", cube2Pos.y.toString());
-          cube2.setAttribute("z", cube2Pos.z.toString());
-          
-          cube3.setAttribute("x", cube3Pos.x.toString());
-          cube3.setAttribute("y", cube3Pos.y.toString());
-          cube3.setAttribute("z", cube3Pos.z.toString());
+          cube3.setAttribute("x", coordinates[2].x.toString());
+          cube3.setAttribute("y", coordinates[2].y.toString());
+          cube3.setAttribute("z", coordinates[2].z.toString());
         }
       }
 
-      // Update cube positions every tick
-      setInterval(updateCubePositions, 50); // Update 20 times per second for smooth movement
+      // Initialize coordinate loading
+      loadCoordinates();
 
       function rollDice() {
         diceClickCount++;
